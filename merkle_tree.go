@@ -90,6 +90,9 @@ func (n *Node) calculateNodeHash() ([]byte, error) {
 	}
 
 	h := n.Tree.hashStrategy()
+	if n.Right == nil {
+		return n.Left.Hash, nil
+	}
 	if _, err := h.Write(append(n.Left.Hash, n.Right.Hash...)); err != nil {
 		return nil, err
 	}
@@ -304,13 +307,10 @@ func (m *MerkleTree) RebuildTreeWith(cs []Content) error {
 //resulting hash at the root of the tree matches the resulting root hash; returns false otherwise.
 func (m *MerkleTree) VerifyTree() (bool, error) {
 	calculatedMerkleRoot, err := m.Root.verifyNode()
-	fmt.Println("err - ", err)
 
 	if err != nil {
 		return false, err
 	}
-
-	fmt.Println("calculatedMerkleRoot - ", calculatedMerkleRoot)
 
 	if res := bytes.Compare(m.merkleRoot, calculatedMerkleRoot); res == 0 {
 		return true, nil
